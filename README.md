@@ -58,7 +58,7 @@ URL: `http://localhost:3000/admin`
 URL: `http://localhost:3000`
 1. Blog List: View the realtime list of published blogs.
 2. Blog Detail: View the blog detail and the realtime posts of a specific blog.
-3. Switch from Admin to Public site by clicking "Go to Public Site" button in the navbar.
+3. Switch from Public site to Admin by clicking "Go to Admin" button in the navbar.
 
 ## Dependencies
 - React - Library for building the UI.
