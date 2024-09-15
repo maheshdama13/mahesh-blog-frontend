@@ -22,7 +22,12 @@ export default function BlogPosts({ posts, deletePost, refreshPosts }) {
         <EditPostForm editPost={editPost} setOpenModal={setIsEditModalOpen} refreshPosts={refreshPosts} />
       </CustomModel>
 
-      <Table striped>
+      {!posts.length ?
+          (
+            <div className="bg-gray-100 p-5 mt-2 rounded">No posts are available.</div>
+          )
+          : 
+          <Table striped>
         <Table.Head>
           <Table.HeadCell>Title</Table.HeadCell>
           <Table.HeadCell>Description</Table.HeadCell>
@@ -77,6 +82,8 @@ export default function BlogPosts({ posts, deletePost, refreshPosts }) {
           ))}
         </Table.Body>
       </Table>
+      }
+      
     </div>
   );
 }
