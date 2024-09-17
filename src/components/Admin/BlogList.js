@@ -5,11 +5,16 @@ import { useBreadcrumbs } from "../../contexts/BreadcrumbContext";
 import { Button, Table, Tooltip } from "flowbite-react";
 import CustomModel from "../CustomModel";
 import CustomInput from "../CustomInput";
+import { ConfirmBox } from "../ConfirmBox";
+import { toast } from "react-toastify";
+import CreateBlogForm from "./CreateBlogForm";
 
 const BlogList = () => {
   const [blogs, setBlogs] = useState([]);
   const [blogName, setBlogName] = useState("");
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteConfirmBoxOpen, setDeleteConfirmBoxOpen] = useState(false);
 
   const { setBreadcrumbs } = useBreadcrumbs();
   useEffect(() => {
@@ -20,17 +25,26 @@ const BlogList = () => {
     api.get("/admin/blogs").then((res) => setBlogs(res.data));
   }, []);
 
-  const createBlog = () => {
-    api.post("/admin/blogs", { name: blogName }).then((res) => {
+  const createBlog = (values) => {
+    api.post("/admin/blogs", values).then((res) => {
       setBlogs([...blogs, res.data]);
       setBlogName("");
       setOpenCreateModal(false)
     });
   };
 
-  const deleteBlog = (id) => {
-    api.delete(`/admin/blogs/${id}`).then(() => {
-      setBlogs(blogs.filter((blog) => blog.id !== id));
+  const handledeleteBlog = (id) => {
+    setDeleteId(id);
+    setDeleteConfirmBoxOpen(true);
+  }
+  
+  const deleteBlog = () => {
+    api.delete(`/admin/blogs/${deleteId}`).then(() => {
+      setBlogs(blogs.filter((blog) => blog.id !== deleteId));
+      setDeleteConfirmBoxOpen(false);
+      toast('Blog deleted successfully.');
+    }).catch(() => {
+      toast('Something went wrong, Please try again later.');
     });
   };
 
@@ -55,26 +69,23 @@ const BlogList = () => {
         </Button>
       </h1>
 
+      <ConfirmBox  
+        title="Are you sure?"
+        openModal={deleteConfirmBoxOpen}
+        setOpenModal={setDeleteConfirmBoxOpen}
+        onSubmit={deleteBlog}
+      >
+      Do you want to delete the blog?
+      </ConfirmBox>
+
+      {/* Create Blog Modal */}
       <CustomModel
         openModal={openCreateModal}
         setOpenModal={setOpenCreateModal}
-        title="Create a Blog"
+        title="Create a Blogs"
       >
-        <div>
-          <div>
-            <CustomInput
-              type="text"
-              label="Title"
-              value={blogName}
-              name="title"
-              className="mb-4"
-              onChange={(e) => setBlogName(e.target.value)}
-              required
-            />
-          </div>
-
-          <Button onClick={createBlog}>Create New Blog</Button>
-        </div>
+        <CreateBlogForm createBlog={createBlog} />
+       
       </CustomModel>
 
       <Table striped>
@@ -116,7 +127,7 @@ const BlogList = () => {
                   <Button
                     size="xs"
                     color={"failure"}
-                    onClick={() => deleteBlog(blog.id)}
+                    onClick={() => handledeleteBlog(blog.id)}
                   >
                     Delete
                   </Button>

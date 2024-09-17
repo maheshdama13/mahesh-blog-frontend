@@ -6,19 +6,14 @@ import { Button } from "flowbite-react";
 import { useBreadcrumbs } from "../../contexts/BreadcrumbContext";
 import BlogPosts from "./BlogPosts";
 import CreatePostForm from "./CreatePostForm";
+import { toast } from "react-toastify";
 
 const BlogDetail = () => {
   const { blogId } = useParams();
   const [posts, setPosts] = useState([]);
   const [openCreateModal, setOpenCreateModal] = useState(false);
-  const [newPost, setNewPost] = useState({
-    title: "",
-    description: "",
-    image: null,
-    facebookEmbed: "",
-    twitterEmbed: "",
-    metaUrl: "",
-  });
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteConfirmBoxOpen, setDeleteConfirmBoxOpen] = useState(false);
 
   const { setBreadcrumbs } = useBreadcrumbs();
   useEffect(() => {
@@ -34,20 +29,12 @@ const BlogDetail = () => {
 
   const refreshPosts = () => {
     api.get(`/blogs/${blogId}/posts`).then((res) => setPosts(res.data));
-  }
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    var form_data = new FormData();
-    form_data.append(blogId, blogId);
-    for (var key in newPost) {
-      if (newPost[key]) form_data.append(key, newPost[key]);
-    }
-    // console.log(form_data);
-
+  const handleSubmit = async (values) => {
     try {
       api
-        .post(`/admin/blogs/${blogId}/posts`, form_data, {
+        .post(`/admin/blogs/${blogId}/posts`, values, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -55,42 +42,50 @@ const BlogDetail = () => {
         .then((res) => {
           setPosts([...posts, res.data]);
           setOpenCreateModal(false);
+          toast("Post created successfully.");
+        })
+        .catch(() => {
+          toast("Something went wrong, Please try again later.");
         });
 
-      setNewPost({
-        title: "",
-        description: "",
-        image: "",
-        facebookEmbed: "",
-        twitterEmbed: "",
-        metaUrl: "",
-      });
     } catch (error) {
       console.error("Error creating post:", error);
     }
   };
 
-  const deletePost = (id) => {
+  const deletePost = () => {
     api
-      .delete(`/admin/blogs/${blogId}/posts/${id}`)
-      .then(() => setPosts(posts.filter((post) => post.id !== id)));
+      .delete(`/admin/blogs/${blogId}/posts/${deleteId}`)
+      .then(() => {
+        setPosts(posts.filter((post) => post.id !== deleteId));
+        setDeleteConfirmBoxOpen(false);
+        toast("Post deleted successfully.");
+      })
+      .catch(() => {
+        toast("Something went wrong, Please try again later.");
+      });
   };
 
-  const handleInputChange = (e) => {
+  const handleDeletePost = (id) => {
+    setDeleteId(id);
+    setDeleteConfirmBoxOpen(true);
+  };
+
+  /* const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     setNewPost((prevState) => {
       return { ...prevState, [name]: value };
     });
-  };
+  }; */
 
-  const handleFileChange = (e) => {
+  /* const handleFileChange = (e) => {
     const { name, files } = e.target;
 
     setNewPost((prevState) => {
       return { ...prevState, [name]: files[0] };
     });
-  };
+  }; */
 
   return (
     <>
@@ -100,10 +95,7 @@ const BlogDetail = () => {
         title="Create a post"
       >
         <CreatePostForm
-          handleInputChange={handleInputChange}
-          handleFileChange={handleFileChange}
           handleSubmit={handleSubmit}
-          newPost={newPost}
         />
       </CustomModel>
 
@@ -118,7 +110,14 @@ const BlogDetail = () => {
         </Button>
       </h1>
 
-      <BlogPosts posts={posts} deletePost={deletePost} refreshPosts={refreshPosts} />
+      <BlogPosts
+        posts={posts}
+        deletePost={deletePost}
+        refreshPosts={refreshPosts}
+        handleDeletePost={handleDeletePost}
+        deleteConfirmBoxOpen={deleteConfirmBoxOpen}
+        setDeleteConfirmBoxOpen={setDeleteConfirmBoxOpen}
+      />
     </>
   );
 };

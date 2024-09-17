@@ -1,12 +1,13 @@
 import { Card } from "flowbite-react";
 import React from "react";
+import NoListPanel from "../NoListPanel";
 
 export default function BlogPostList({ posts }) {
   return (
     <div className="grid grid-cols-1 gap-8">
       {!posts.length ?
           (
-            <div className="bg-gray-100 p-5 mt-2 rounded">No posts are available.</div>
+            <NoListPanel>No posts are available.</NoListPanel>
           )
           : ''
         }

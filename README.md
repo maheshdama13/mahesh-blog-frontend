@@ -37,10 +37,19 @@ Copy the content of `example.env` and create a new env file having name `.env` a
 Change "REACT_APP_SERVER_URL" in .env as per you backend url.
 
 ### 5. Run the application
+
+For development version
 ```bash
 npm start
 ```
-It will automatically sync the Sequelize models with the database:
+
+For production version
+```bash
+npm run build
+npm install -g serve
+serve -s build
+```
+
 The app will be available at http://localhost:3000.
 
 ## Usage

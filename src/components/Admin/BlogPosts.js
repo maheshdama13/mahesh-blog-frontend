@@ -2,8 +2,17 @@ import { Button, Table } from "flowbite-react";
 import React, { useState } from "react";
 import CustomModel from "../CustomModel";
 import EditPostForm from "./EditPostForm";
+import { ConfirmBox } from "../ConfirmBox";
+import NoListPanel from "../NoListPanel";
 
-export default function BlogPosts({ posts, deletePost, refreshPosts }) {
+export default function BlogPosts({ 
+  posts, 
+  deletePost, 
+  refreshPosts,
+  handleDeletePost,
+  deleteConfirmBoxOpen,
+  setDeleteConfirmBoxOpen
+}) {
   const [editPost, setEditPost] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -14,17 +23,26 @@ export default function BlogPosts({ posts, deletePost, refreshPosts }) {
 
   return (
     <div className="relative overflow-x-auto">
+      <ConfirmBox  
+        title="Are you sure?"
+        openModal={deleteConfirmBoxOpen}
+        setOpenModal={setDeleteConfirmBoxOpen}
+        onSubmit={deletePost}
+      >
+      Do you want to delete the post?
+      </ConfirmBox>
+
       <CustomModel
         openModal={isEditModalOpen}
         setOpenModal={setIsEditModalOpen}
-        title="Create a Blog"
+        title="Edit post"
       >
         <EditPostForm editPost={editPost} setOpenModal={setIsEditModalOpen} refreshPosts={refreshPosts} />
       </CustomModel>
 
       {!posts.length ?
           (
-            <div className="bg-gray-100 p-5 mt-2 rounded">No posts are available.</div>
+            <NoListPanel>No posts are available.</NoListPanel>
           )
           : 
           <Table striped>
@@ -72,7 +90,7 @@ export default function BlogPosts({ posts, deletePost, refreshPosts }) {
                 </Button>
                 <Button
                   size={"xs"}
-                  onClick={() => deletePost(post.id)}
+                  onClick={() => handleDeletePost(post.id)}
                   color={"failure"}
                 >
                   Delete

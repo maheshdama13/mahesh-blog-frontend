@@ -4,6 +4,7 @@ import socket from "../../socket";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
 import { useBreadcrumbs } from "../../contexts/BreadcrumbContext";
+import NoListPanel from "../NoListPanel";
 
 const BlogList = () => {
   const [blogs, setBlogs] = useState([]);
@@ -36,6 +37,11 @@ const BlogList = () => {
   return (
     <div className="container mx-auto px-4 py-2">
       <h1 className="text-3xl font-bold mb-8 text-center">Blog List</h1>
+      {!blogs.length ?
+        <NoListPanel>No blogs available.</NoListPanel>
+        : ''
+        
+      }
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {blogs.map((blog) => (
           <div
